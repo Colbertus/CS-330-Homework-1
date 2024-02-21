@@ -16,7 +16,7 @@ import vectorOperations
 def main():
 
     #open and create trajectory file for character movement updates
-    trajectory = open("")
+    trajectory = open("trajectories.txt", "w")
     #Initialize initial conditions variables
     time = 0
     timeIncrement = 0.5

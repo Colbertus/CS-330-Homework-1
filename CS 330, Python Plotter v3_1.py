@@ -18,7 +18,7 @@ import math
 
 
 # Change this to data file name. You may need to put the entire path to the file here as well:
-filename = "data.txt" 
+filename = "trajectories.txt" 
 
 #************************** Setup Plotting Axis ****************************
 xLineX = [-100, 100]
