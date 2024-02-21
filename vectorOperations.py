@@ -2,7 +2,7 @@ from numpy import pi, sqrt
 
 class vector:
 
-    def init(self, x, z):
+    def __init__(self, x, z):
         self.x = x
         self.z = z 
 

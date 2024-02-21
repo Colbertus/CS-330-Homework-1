@@ -10,8 +10,8 @@
 # variables to initialize: pos, vel, dir, acc, lin acc, timestep, subvariables for maxes
 
 #import files to use in main function calls
-import movementAlgorithms
-import vectorOperations
+import movementAlgorithms as mg
+import vectorOperations as vp
 
 def main():
 
@@ -20,7 +20,7 @@ def main():
     #Initialize initial conditions variables
     time = 0
     timeIncrement = 0.5
-    stopTime = 100
+    stopTime = 50
 
 
     while time <= stopTime:
