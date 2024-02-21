@@ -15,8 +15,15 @@
 
 # imports for libraries to use within methods
 import vectorOperations as vp
+from vectorOperations import vector 
 import numpy as np
 import math 
+
+CONTINUE = 1
+SEEK = 6
+FLEE = 7
+ARRIVE = 8  
+
 
 class steeringOutput:
     linear : np.ndarray
@@ -39,15 +46,14 @@ class character:
     linear: np.ndarray 
 # TODO figure out why vector operations are not importing properly
 # TODO change variable names to match our class attributes names
-    def __init__(self, id, steering, positionX, positionZ, velocityX, velocityZ, 
-        initPosition, initOrientation, maxVel, maxAcc, target, arrivalRadius, slowingRadius, 
+    def __init__(self, id, steering, positionXInit, positionZInit, velocityX, velocityZ, 
+        initOrientation, maxVel, maxAcc, target, arrivalRadius, slowingRadius, 
         timeTarget):
 
         self.id = id
         self.steeringBehavior = steering
-        self.initPosition = initPosition
-        self.position = np.vector(positionX, positionZ) 
-        self.velocity = np.vector(velocityX, velocityZ) 
+        self.initPosition = vector(positionXInit, positionZInit) 
+        self.velocity = vector(velocityX, velocityZ) 
         self.initOrientation = initOrientation
         self.maxVel = maxVel
         self.maxAcc = maxAcc

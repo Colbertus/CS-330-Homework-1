@@ -10,7 +10,8 @@
 # variables to initialize: pos, vel, dir, acc, lin acc, timestep, subvariables for maxes
 
 #import files to use in main function calls
-import vectorOperations as vp
+
+from characterAttributes import character 
 import characterAttributes as ca
 
 
@@ -25,11 +26,9 @@ time = 0
 timeIncrement = 0.5
 stopTime = 50
 
+# TODO: Create an instance of each character 
 #character 1 = continue behavior
-char1 = ca.init()
-char1.id = 2601
-char1.steering = 1
-char1.position = 
+char1 = character(2601, ca.CONTINUE, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 #character 2 = flee 
 #character 3 = seek
 #character 4 = arrive
@@ -40,7 +39,6 @@ while time < stopTime:
     # Loop through list of characters
     for i in characters:
         # Call each steering behavior for character
-        if i.
     #paste each update into end of txt file, end while
 
 
@@ -56,3 +54,4 @@ while time < stopTime:
 
 
 #End of Program
+    
