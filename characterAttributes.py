@@ -44,8 +44,7 @@ class character:
     slowingRadius: float 
     timeTarget: float 
     linear: np.ndarray 
-# TODO figure out why vector operations are not importing properly
-# TODO change variable names to match our class attributes names
+
     def __init__(self, id, steering, positionXInit, positionZInit, velocityX, velocityZ, 
         initOrientation, maxVel, maxAcc, target, arrivalRadius, slowingRadius, 
         timeTarget):
@@ -94,8 +93,10 @@ class character:
             result.linear = vp.vector(0,0)
             result.angular = 0 
             return result 
+        
         elif distance > self.slowingRadius:
             targetSpeed = self.maxVelocity 
+
         else:
             targetSpeed = self.maxVelocity * distance / self.slowingRadius
 
@@ -116,7 +117,24 @@ class character:
     #   This function takes in the current character attributes and target attributes
     #   and sets the behavior to run directly away from the target by finding the 
     #   direction to the target and accelerating opposite of that
+    def flee(self, target): 
+        result = steeringOutput()
+        result.linear = self.position - target.position
+        result.linear = vp.normalize(result.linear) 
+        result.linear *= self.maxAcceleration
+        
+        if vp.normalize(self.maxVelocity) > 0:
+            result.angular = math.atan2(-self.velocity[0], self.velocity[1])
+
+        else:
+            result.angular = 0
+
+        return result
 
     # Function: Continue
-           
+    def continueFunc(self):
+        result = steeringOutput()
+        result.linear = self.velocity
+        result.angular = 0
+        return result
         
