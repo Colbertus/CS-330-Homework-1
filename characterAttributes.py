@@ -18,11 +18,14 @@ import vectorOperations as vp
 from vectorOperations import vector 
 import numpy as np
 import math 
+import mainFunction as mf
+
 
 CONTINUE = 1
 SEEK = 6
 FLEE = 7
 ARRIVE = 8  
+
 
 
 class steeringOutput:
@@ -50,7 +53,7 @@ class character:
         timeTarget):
 
         self.id = id
-        self.steeringBehavior = steering
+        self.steering = steering
         self.initPosition = vector(positionXInit, positionZInit) 
         self.velocity = vector(velocityX, velocityZ) 
         self.initOrientation = initOrientation
@@ -68,11 +71,11 @@ class character:
     def seek(self, target):
         
         result = steeringOutput()
-        result.linear = target.initialPosition - self.initialPosition
-        result.linear = vp.normalize(result.linear) 
-        result.linear *= self.maxAcceleration
+        result.linear = target.initPosition - self.initPosition
+        result.linear = vector.normalize(result.linear) 
+        result.linear *= self.maxAcc
 
-        if vp.normalize(self.maxVelocity) > 0:
+        if vector.normalize(self.maxVel) > 0:
             result.angular = math.atan2(-self.velocity[0], self.velocity[1])
 
         else:
@@ -87,31 +90,31 @@ class character:
     def arrive(self, target):
 
         result = steeringOutput() 
+        #TODO fix target.position
         direction = target.position - self.position 
-        distance = vp.normalize(direction) 
+        distance = vector.normalize(direction) 
         if distance < self.arrivalRadius:
             result.linear = vp.vector(0,0)
             result.angular = 0 
             return result 
         
         elif distance > self.slowingRadius:
-            targetSpeed = self.maxVelocity 
+            targetSpeed = self.maxVel 
 
         else:
-            targetSpeed = self.maxVelocity * distance / self.slowingRadius
+            targetSpeed = self.maxVel * distance / self.slowingRadius
 
-        targetVelocity = vp.normalize(direction) * targetSpeed 
+        targetVelocity = vector.normalize(direction) * targetSpeed 
 
         result.linear = targetVelocity - self.velocity 
-        result.linear = result.linear / self.timeToTarget 
+        result.linear = result.linear / self.timeTarget 
 
-        if vp.normalize(result.linear) > self.maxAcceleration:
-            result.linear = vp.normalize(result.linear) * self.maxAcceleration 
+        if vector.normalize(result.linear) > self.maxAcc:
+            result.linear = vector.normalize(result.linear) * self.maxAcc 
         
         result.angular = math.atan2(-self.velocity[0], self.velocity[1])
 
         return result 
-    # TODO add continue and flee algorithms
 
     # Function: Flee
     #   This function takes in the current character attributes and target attributes
@@ -120,10 +123,10 @@ class character:
     def flee(self, target): 
         result = steeringOutput()
         result.linear = self.position - target.position
-        result.linear = vp.normalize(result.linear) 
-        result.linear *= self.maxAcceleration
-        
-        if vp.normalize(self.maxVelocity) > 0:
+        result.linear = vector.normalize(result.linear) 
+        result.linear *= self.maxAcc
+        #TODO fix target.position 
+        if vector.normalize(self.maxVel) > 0:
             result.angular = math.atan2(-self.velocity[0], self.velocity[1])
 
         else:
@@ -137,4 +140,25 @@ class character:
         result.linear = self.velocity
         result.angular = 0
         return result
+    
+    # Function: Update
+    def update(self, steering: steeringOutput):
+        
+        # Update the position and orientation
+        # Face in the direction we want to move
+        self.position = self.position + (self.velocity * mf.timeIncrement)
+        self.orientation = self.orientation + (self.rotation * mf.timeIncrement)
+        self.orientation = self.orientation / (2 * math.pi)
+
+        # and the velocity and rotation
+        self.velocity = self.velocity + (steering.linear * mf.timeIncrement)
+        self.rotation = self.rotation + (steering.angular * mf.timeIncrement)
+
+        #calculate Angular
+        #self.linear = vector(math.cos(steering.angular), math.sin(steering.angular))
+   
+
+        # Check for speed above the max and clip
+        if vector.normalize(self.velocity) > self.maxVel:
+            self.velocity = vector.normalize(self.velocity) * self.maxVel
         
