@@ -10,11 +10,12 @@ Purpose: TODO: Fill in purpose of the program
 # Main Function
 
 # Needed imports for the program
-from numpy import pi, sqrt
+from numpy import pi
 import numpy as np
 import math
 
 def vector(x, z):
+
     return np.array([x, z])
 
 def normalize(self):
@@ -70,7 +71,14 @@ class character:
         result.linear = target.position - self.position
         result.linear = normalize(result.linear) 
         result.linear = result.linear * self.maxAcc
-        result.angular = 0
+        
+
+        if length(self.velocity) > 0:
+            result.angular = math.atan2(-self.velocity[0], self.velocity[1])    
+
+        else:
+            result.angular = 0
+
         return result 
     
     # Function: Arrive
@@ -114,7 +122,12 @@ class character:
         result.linear = self.position - target.position
         result.linear = normalize(result.linear) 
         result.linear *= self.maxAcc
-        result.angular = 0
+    
+        if length(self.velocity) > 0:
+            result.angular = math.atan2(-self.velocity[0], self.velocity[1])
+        else:
+            result.angular = 0
+
         return result
 
     # Function: Continue
@@ -135,15 +148,15 @@ class character:
 
         # and the velocity 
         self.velocity = self.velocity + (steering.linear * timeIncrement)
+        self.rotation = self.rotation + (steering.angular * timeIncrement)
     
         
         #calculate Angular
-        #self.linear = vector(math.cos(steering.angular), math.sin(steering.angular))
+        self.linear = vector(math.cos(steering.angular), math.sin(steering.angular))
    
         # Check for speed above the max and clip
         if length(self.velocity) > self.maxVel:
             self.velocity = normalize(self.velocity) * self.maxVel
-            self.velocity = self.velocity * self.maxVel
     
 
 
