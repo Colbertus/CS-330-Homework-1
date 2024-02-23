@@ -14,35 +14,14 @@ from numpy import pi, sqrt
 import numpy as np
 import math
 
-# Vector class that handles vector operations
-class vector:
+def vector(x, z):
+    return np.array([x, z])
 
-    def __init__(self, x, z):
-        self.x = x
-        self.z = z 
+def normalize(self):
+    return self / np.linalg.norm(self, ord=2)
 
-    def __add__(self, other):
-        sumVect = vector(self.x + other.x, self.z + other.z)
-        return sumVect 
-
-    def __sub__(self, other):
-        subVect = vector(self.x - other.x, self.z - other.z)
-        return subVect 
-
-    def __mul__(self, other):
-        mulVect = vector(self.x * other, self.z * other)
-        return mulVect 
-
-    def length(self): 
-        return sqrt((self.x * self.x) + (self.z * self.z))
-
-    def normalize(self):
-        distance = self.length()
-        normalizedVect = vector(self.x / distance, self.z / distance)
-        return normalizedVect
-
-    def print(self):
-        print("X: " + str(self.x) + "\nZ: " + str(self.z)) 
+def length(self):
+    return np.linalg.norm(self, ord=2)
 
 class steeringOutput:
     linear : np.ndarray
@@ -88,9 +67,8 @@ class character:
     def seek(self, target):
         
         result = steeringOutput()
-        result.linear[0] = target.position.x - self.position.x
-        result.linear[1] = target.position.z - self.position.z 
-        result.linear = vector.normalize(result.linear) 
+        result.linear = target.position - self.position
+        result.linear = normalize(result.linear) 
         result.linear = result.linear * self.maxAcc
         result.angular = 0
         return result 
@@ -103,7 +81,7 @@ class character:
 
         result = steeringOutput() 
         direction = target.position - self.position 
-        distance = vector.normalize(direction) 
+        distance = length(direction) 
         if distance < self.arrivalRadius:
             result.linear = vector(0,0)
             result.angular = 0 
@@ -115,13 +93,13 @@ class character:
         else:
             targetSpeed = self.maxVel * distance / self.slowingRadius
 
-        targetVelocity = vector.normalize(direction) * targetSpeed 
+        targetVelocity = normalize(direction) * targetSpeed 
 
         result.linear = targetVelocity - self.velocity 
         result.linear = result.linear / self.timeTarget 
 
-        if vector.normalize(result.linear) > self.maxAcc:
-            result.linear = vector.normalize(result.linear) * self.maxAcc 
+        if length(result.linear) > self.maxAcc:
+            result.linear = normalize(result.linear) * self.maxAcc 
         
         result.angular = math.atan2(-self.velocity[0], self.velocity[1])
 
@@ -134,14 +112,9 @@ class character:
     def flee(self, target): 
         result = steeringOutput()
         result.linear = self.position - target.position
-        result.linear = vector.normalize(result.linear) 
+        result.linear = normalize(result.linear) 
         result.linear *= self.maxAcc
-        if vector.normalize(self.maxVel) > 0:
-            result.angular = math.atan2(-self.velocity[0], self.velocity[1])
-
-        else:
-            result.angular = 0
-
+        result.angular = 0
         return result
 
     # Function: Continue
@@ -156,23 +129,22 @@ class character:
         
         # Update the position and orientation
         # Face in the direction we want to move
-        self.position.x = self.position.x + (self.velocity.x * timeIncrement)
-        self.position.z = self.position.z + (self.velocity.z * timeIncrement)
+        self.position = self.position + (self.velocity * timeIncrement)
         self.initOrientation = self.initOrientation + (self.rotation * timeIncrement)
         self.initOrientation = self.initOrientation / (2 * pi)
 
         # and the velocity 
-        self.velocity.x = self.velocity.x + (steering.linear.x * timeIncrement)
-        self.velocity.z = self.velocity.z + (steering.linear.z * timeIncrement)
+        self.velocity = self.velocity + (steering.linear * timeIncrement)
+    
         
         #calculate Angular
         #self.linear = vector(math.cos(steering.angular), math.sin(steering.angular))
    
         # Check for speed above the max and clip
-        if vector.length(self.velocity) > self.maxVel:
-            self.velocity = vector.normalize(self.velocity) * self.maxVel
-            self.velocity.x = self.velocity.x * self.maxVel
-            self.velocity.z = self.velocity.z * self.maxVel
+        if length(self.velocity) > self.maxVel:
+            self.velocity = normalize(self.velocity) * self.maxVel
+            self.velocity = self.velocity * self.maxVel
+    
 
 
 CONTINUE = 1 
@@ -198,12 +170,12 @@ characters = [char1, char2, char3, char4]
 
 for p in characters:
     print(str(time), str(p.id),
-          str(p.position.x),
-          str(p.position.z),
-          str(p.velocity.x),
-          str(p.velocity.z),
-          str(p.linear.x),
-          str(p.linear.z),
+          str(p.position[0]),
+          str(p.position[1]),
+          str(p.velocity[0]),
+          str(p.velocity[1]),
+          str(p.linear[0]),
+          str(p.linear[1]),
           str(p.initOrientation),
           str(p.steering),
           "FALSE",
@@ -236,7 +208,7 @@ while time < stopTime:
               str(p.velocity[1]),
               str(p.linear[0]),
               str(p.linear[1]),
-              str(p.orientation),
+              str(p.initOrientation),
               str(p.steering),
               "FALSE",
               sep=',', file = trajectory)      
