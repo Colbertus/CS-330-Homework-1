@@ -7,7 +7,7 @@
 #  1. Place this file and the file to be plotted in the same folder
 #  2. Open this file and change the variable filename to the name of the file
 #         to be opened.
-#  3. Run in IDE, or run "python 'CS 330 Python Plotter v3.py'" in command line /
+#  3. Run in IDE, or run "python 'CS 330, Python Plotter v3_1.py'" in command line /
 #         terminal.
 
 
