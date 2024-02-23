@@ -1,17 +1,18 @@
 '''
 Authors: Colby McClure, Paige Smith
-File: mainFunction.py
+Driver File: mainFunction.py
 Output File: trajectory.txt
 Assignment: CS 330 Program 1
 Date: 2/23/24
 Purpose: Design and implement character movement algorithms for Seek, Flee,
-         Arrive, and Continue. Use these algorithms to similate a character 
+         Arrive, and Continue. Use these algorithms to simulate a character 
          moving towards a stationary target for a set amount of time with 
          .5 time increments. Save all character movement values into a file 
          with the update function in order to plot character trajectory 
-         throughout similation.
+         throughout simulation.
 
 '''
+#***********************************************************************#
 
 # Main Function
 
@@ -20,7 +21,7 @@ from numpy import pi
 import numpy as np
 import math
 
-# Define vector array and vectory math functions
+# Define vector array and vector math functions
 
 def vector(x, z):
 
@@ -36,6 +37,8 @@ def length(self):
 class steeringOutput:
     linear : np.ndarray
     angular: float 
+
+#***********************************************************************#
 
 # Class for character and all attributes pertaining to movement
 class character:
@@ -69,13 +72,17 @@ class character:
         self.arrivalRadius = arrivalRadius
         self.slowingRadius = slowingRadius
         self.timeTarget = timeTarget
-        self.linear = vector(0, 0)
+        self.linear = vector(0.0, 0.0)
         self.rotation = 0
 
-    # Function: Seek
-    #   This function takes in the current character attributes and target attributes
-    #   and sets the behavior to move directly toward the target's position
-    #   by accelerating at max rate up to the max character speed
+#***********************************************************************#
+        
+    '''
+    Function: Seek
+       This function takes in the current character attributes and target attributes
+       and sets the behavior to move directly toward the target's position
+        by accelerating at max rate up to the max character speed
+    '''
     def seek(self, target):
         
         # Determine position and direction to go and set linear acc
@@ -92,11 +99,15 @@ class character:
             result.angular = 0
 
         return result 
+
+#***********************************************************************#
     
-    # Function: Arrive
-    #   This function takes in the current character attributes and target attributes
-    #   and sets the behavior to arrive at target without overshooting target by
-    #   adjusting the character's speed as it moves closer to the target
+    '''
+    Function: Arrive
+        This function takes in the current character attributes and target attributes
+        and sets the behavior to arrive at target without overshooting target by
+        adjusting the character's speed as it moves closer to the target
+    '''
     def arrive(self, target):
 
         # Determine direction and position
@@ -106,15 +117,13 @@ class character:
 
         # Determine if current speed is too fast or slow for current radius from target
         if distance < self.arrivalRadius:
-            result.linear = vector(0,0)
-            result.angular = 0 
-            return result 
+            targetSpeed = 0.0
         
         elif distance > self.slowingRadius:
             targetSpeed = self.maxVel 
 
         else:
-            targetSpeed = self.maxVel * distance / self.slowingRadius
+            targetSpeed = (self.maxVel * distance) / self.slowingRadius
 
         targetVelocity = normalize(direction) * targetSpeed 
 
@@ -124,15 +133,20 @@ class character:
 
         if length(result.linear) > self.maxAcc:
             result.linear = normalize(result.linear) * self.maxAcc 
+            result.linear = result.linear * self.maxAcc
         
         result.angular = math.atan2(-self.velocity[0], self.velocity[1])
 
         return result 
+    
+#***********************************************************************#
 
-    # Function: Flee
-    #   This function takes in the current character attributes and target attributes
-    #   and sets the behavior to run directly away from the target by finding the 
-    #   direction to the target and accelerating opposite of that
+    '''
+    Function: Flee
+       This function takes in the current character attributes and target attributes
+       and sets the behavior to run directly away from the target by finding the 
+       direction to the target and accelerating opposite of that
+    '''
     def flee(self, target): 
 
         # Determine direction and position and move away
@@ -149,38 +163,48 @@ class character:
             result.angular = 0
 
         return result
+    
+#***********************************************************************#
 
-    # Function: Continue
-    #   Take in a character and determine if character has a steering behavior or not
-    #   allows character to keep moving or stay stationary
+    '''
+    Function: Continue
+       Take in a character and determine if character has a steering behavior or not
+       allows character to keep moving or stay stationary
+    '''
     def continueFunc(self):
         result = steeringOutput()
         result.linear = self.velocity
         result.angular = 0
         return result
+
+#***********************************************************************#
     
-    # Function: Update
-    #   Takes in a character and its steering class plus time increment to update all 
-    #   character class attributes to later store in the trajectory file 
-    def update(self, steering: steeringOutput):
+    '''
+    Function: Update
+       Takes in a character and its steering class plus time increment to update all 
+       character class attributes to later store in the trajectory file 
+    '''
+    def update(self, steering):
         
         # Update the position and orientation
         # Face in the direction we want to move
         self.position = self.position + (self.velocity * timeIncrement)
         self.initOrientation = self.initOrientation + (self.rotation * timeIncrement)
-        self.initOrientation = self.initOrientation / (2 * pi)
+
 
         # And the velocity 
         self.velocity = self.velocity + (steering.linear * timeIncrement)
         self.rotation = self.rotation + (steering.angular * timeIncrement)
     
         
-        # Calculate Angular
-        self.linear = vector(math.cos(steering.angular), math.sin(steering.angular))
+        # Calculate linear
+        self.linear = steering.linear
    
         # Check for speed above the max and clip
         if length(self.velocity) > self.maxVel:
             self.velocity = normalize(self.velocity) * self.maxVel
+
+#***********************************************************************#
     
 
 # Set steering behaviors
@@ -198,10 +222,12 @@ stopTime = 50
 timeIncrement = 0.5
 
 # Initialize each character
-char1 = character(2601, CONTINUE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-char2 = character(2602, FLEE, -30, -50, 2, 7, (pi / 4), 8, 1.5, 1, 0, 0, 0)
-char3 = character(2603, SEEK, -50, 40, 0, 8, ((3 * pi) / 2), 8, 2, 1, 0, 0, 0)
-char4 = character(2604, ARRIVE, 50, 75, -9, 4, pi, 10, 2, 1, 4, 32, 1)
+char1 = character(2601, CONTINUE, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0)
+char2 = character(2602, FLEE, -30.0, -50.0, 2.0, 7.0, (pi / 4.0), 8.0, 1.5, 1, 0, 0, 0)
+char3 = character(2603, SEEK, -50.0, 40.0, 0.0, 8.0, ((3.0 * pi) / 2.0), 8.0, 2.0, 1, 0, 0, 0)
+char4 = character(2604, ARRIVE, 50.0, 75.0, -9.0, 4.0, pi, 10, 2, 1, 4, 32, 1)
+
+#***********************************************************************#
 
 # List of characters to increment through in for-loop
 characters = [char1, char2, char3, char4]
@@ -219,6 +245,8 @@ for p in characters:
           str(p.steering),
           "FALSE",
           sep=',', file=trajectory)
+    
+#***********************************************************************#
 
           
 # While loop to increment time steps 
@@ -252,8 +280,9 @@ while time < stopTime:
               "FALSE",
               sep=',', file = trajectory)   
     # End while loop
+        
 # Close trajectory file, use this file for plotting trajectory graph   
 trajectory.close()
 
-#End of Program
+# End of Program
     
